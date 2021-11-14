@@ -8,6 +8,6 @@ namespace StockWalletCalculator
     {
         public TElement Element { get; set; }
 
-        public int AccumulatedWeight { get; set; }
+        public decimal AccumulatedWeight { get; set; }
     }
 }
