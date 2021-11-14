@@ -1,0 +1,11 @@
+﻿
+namespace StockWalletCalculator
+{
+    /// <summary>
+    /// Iface jakości kombinacji obiektów z genomu, im wyższy wynik, tym lepsza kombinacja.
+    /// </summary>
+    public interface IFitnessCalculator
+    {
+        public decimal Calculate(object[] objects);
+    }
+}
