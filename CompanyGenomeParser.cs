@@ -28,6 +28,8 @@ namespace StockWalletCalculator
         /// <param name="companyVariantsMatrix">Matryca wariantów firm</param>
         public CompanyGenomeParser(IEnumerable<IEnumerable<Company>> companyVariantsMatrix)
         {
+            //TODO przydałaby się walidacja argumentu
+
             // Zapisanie długości części genomu odpowiadającego tylko za jeden wariant obiektu.
             // Bierzemy szerokość (ilość wariantów obiektu) matrycy i wyliczamy na jej podstawie logarytm z dwójki co określi długość części genomu w postaci binarnej.
             // Przez to działanie, szerokość matrycy (ilość wariantów obiektu) musi być potęgą dwójki - może być 1, 2, 4, 8, ... wariantów tego samego obiektu.
