@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace StockWalletCalculator
 {
@@ -26,25 +24,25 @@ namespace StockWalletCalculator
 
         public string RunGenerations(int generationLimit, decimal fitnessLimit)
         {
-            List<Genome> oldGeneration = _genomeGenerator.GenerateGeneration()
-                .Select(g => new Genome { Value = g, Fitness = _fitnessCalculator.Calculate(_genomeGenerator.ParseGenome(g).ToArray()) })
+            List<GenomeWithFitness> oldGeneration = _genomeGenerator.GenerateGeneration()
+                .Select(g => new GenomeWithFitness { Genome = g, Fitness = _fitnessCalculator.Calculate(g) })
                 .OrderByDescending(g => g.Fitness)
                 .ToList();
 
-            Genome bestGenome = null;
+            GenomeWithFitness bestGenome = null;
 
             for (int generationIndex = 0; generationIndex < generationLimit; generationIndex++)
             {
-                List<Genome> newGeneration = oldGeneration.Take(2).ToList();
+                List<GenomeWithFitness> newGeneration = oldGeneration.Take(2).ToList();
                 oldGeneration = oldGeneration.Skip(2).ToList();
 
                 for (int genomeIndex = 0; genomeIndex < oldGeneration.Count / 2; genomeIndex++)
                 {
-                    string[] crossedGenomes = _genomeCrossover.CrossoverGenomes(oldGeneration[genomeIndex].Value, oldGeneration[genomeIndex + 1].Value).ToArray();
+                    string[] crossedGenomes = _genomeCrossover.CrossoverGenomes(oldGeneration[genomeIndex].Genome, oldGeneration[genomeIndex + 1].Genome).ToArray();
                     foreach (string crossedGenome in crossedGenomes)
                     {
                         string mutatedGenome = _genomeMutator.MutateGenome(crossedGenome);
-                        Genome newGenome = new Genome { Value = mutatedGenome, Fitness = _fitnessCalculator.Calculate(_genomeGenerator.ParseGenome(mutatedGenome)) };
+                        GenomeWithFitness newGenome = new GenomeWithFitness { Genome = mutatedGenome, Fitness = _fitnessCalculator.Calculate(mutatedGenome) };
                         newGeneration.Add(newGenome);
                     }
                 }
@@ -52,13 +50,20 @@ namespace StockWalletCalculator
                 bestGenome = newGeneration.OrderByDescending(g => g.Fitness).First();
                 if (bestGenome.Fitness >= fitnessLimit)
                 {
-                    return bestGenome.Value;
+                    return bestGenome.Genome;
                 }
 
                 oldGeneration = newGeneration.OrderByDescending(g => g.Fitness).ToList();
             }
 
-            return bestGenome.Value;
+            return bestGenome.Genome;
+        }
+
+        private class GenomeWithFitness
+        {
+            public string Genome { get; set; }
+
+            public decimal Fitness { get; set; }
         }
     }
 }

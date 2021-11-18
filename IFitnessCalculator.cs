@@ -8,6 +8,6 @@ namespace StockWalletCalculator
     /// </summary>
     public interface IFitnessCalculator
     {
-        public decimal Calculate(IEnumerable<object> objects);
+        public decimal Calculate(string Genome);
     }
 }

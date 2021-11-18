@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace StockWalletCalculator
 {
-    public class CompaniesFitnessCalculator : IFitnessCalculator
+    class CompaniesFitnessCalculator : IFitnessCalculator
     {
+        private readonly CompanyGenomeParser _companyGenomeParser;
         private readonly decimal _wallet;
 
-        public CompaniesFitnessCalculator(decimal wallet)
+        public CompaniesFitnessCalculator(CompanyGenomeParser companyGenomeParser, decimal wallet)
         {
+            _companyGenomeParser = companyGenomeParser;
             _wallet = wallet;
         }
 
-        public decimal Calculate(IEnumerable<object> objects)
+        public decimal Calculate(string genome)
         {
-            Company[] companies = objects.Cast<Company>().ToArray();
-
             decimal walletFitness = 0.00M;
-            foreach (Company company in companies)
+            foreach (Company company in _companyGenomeParser.ParseGenome(genome))
             {
                 int companySharesToBuy = (int)(_wallet * company.Percent / company.Price);
                 walletFitness += companySharesToBuy * company.Price;

@@ -6,23 +6,24 @@ namespace StockWalletCalculator
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            CompaniesFitnessCalculator companiesFitnessCalculator = new CompaniesFitnessCalculator(wallet: 1000.00M);
-            int variantsNumber = (int)Math.Pow(2, 4);
-            decimal percentDiffer = 0.001M;
+            int companyVariantsNumber = (int)Math.Pow(2, 8);
+            decimal percentDiffer = 0.02M;
+            decimal wallet = 1000.00M;
 
-            GenomeGenerator genomeGenerator = new GenomeGenerator(new List<IEnumerable<object>>
+            CompanyGenomeParser companyGenomeParser = new CompanyGenomeParser(new List<IEnumerable<Company>>
             {
-                Program.GenerateCompanyVariant(new Company { Name = "AFG", Percent = 0.30M, Price = 116.43M }, percentDiffer, variantsNumber),
-                Program.GenerateCompanyVariant(new Company { Name = "DEV", Percent = 0.07M, Price = 28.40M }, percentDiffer, variantsNumber),
-                Program.GenerateCompanyVariant(new Company { Name = "EVR", Percent = 0.34M, Price = 124.17M }, percentDiffer, variantsNumber),
-                Program.GenerateCompanyVariant(new Company { Name = "INTEL", Percent = 0.12M, Price = 46.89M }, percentDiffer, variantsNumber),
-                Program.GenerateCompanyVariant(new Company { Name = "KGHM", Percent = 0.09M, Price = 33.00M }, percentDiffer, variantsNumber),
-                Program.GenerateCompanyVariant(new Company { Name = "MFO", Percent = 0.04M, Price = 10.77M }, percentDiffer, variantsNumber),
-                Program.GenerateCompanyVariant(new Company { Name = "OPTEAM", Percent = 0.04M, Price = 3.36M }, percentDiffer, variantsNumber),
-            }, companiesFitnessCalculator);
-
+                Program.GenerateCompanyVariant(new Company { Name = "AFG", Percent = 0.30M, Price = 116.43M }, percentDiffer, companyVariantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "DEV", Percent = 0.07M, Price = 28.40M }, percentDiffer, companyVariantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "EVR", Percent = 0.34M, Price = 124.17M }, percentDiffer, companyVariantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "INTEL", Percent = 0.12M, Price = 46.89M }, percentDiffer, companyVariantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "KGHM", Percent = 0.09M, Price = 33.00M }, percentDiffer, companyVariantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "MFO", Percent = 0.04M, Price = 10.77M }, percentDiffer, companyVariantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "OPTEAM", Percent = 0.04M, Price = 3.36M }, percentDiffer, companyVariantsNumber),
+            });
+            CompaniesFitnessCalculator companiesFitnessCalculator = new CompaniesFitnessCalculator(companyGenomeParser, wallet);
+            GenomeGenerator genomeGenerator = new GenomeGenerator(companyGenomeParser.GenomeLength);
             GenerationsRunner generationsRunner = new GenerationsRunner(
                 genomeGenerator, 
                 new GenomeCrossover(),
@@ -30,26 +31,24 @@ namespace StockWalletCalculator
                 companiesFitnessCalculator
             );
 
-            string bestGenome = generationsRunner.RunGenerations(50, 950.00M);
-            List<object> bestCombination = genomeGenerator.ParseGenome(bestGenome).ToList();
-            decimal bestFitness = companiesFitnessCalculator.Calculate(bestCombination);
+            string bestGenome = generationsRunner.RunGenerations(generationLimit: 100, fitnessLimit: 950.00M);
+            List<Company> bestCompaniesCombination = companyGenomeParser.ParseGenome(bestGenome).ToList();
+            decimal bestFitness = companiesFitnessCalculator.Calculate(bestGenome);
 
-            Console.WriteLine(string.Join('\t', bestCombination) + '\t' + bestFitness);
+            Console.WriteLine(string.Join('\n', bestCompaniesCombination) + '\n' + bestFitness);
         }
 
-        static IEnumerable<Company> GenerateCompanyVariant(Company company, decimal percent, int count)
+        static IEnumerable<Company> GenerateCompanyVariant(Company company, decimal maxCompanyPercentChange, int companyVariantsCount)
         {
-            // Chcemy mieć wyniki takie żeby firma o podanym procencie była mniej więcej w środku wyników. Dodatkowa obsługa żebyśmy nie wyjechali na ujemne wartości.
-            decimal biggestPossiblePercentDiffer = Enumerable.Range(1, count)
-                .Select(n => percent * n / 2)
-                .Where(x => x < company.Percent)
-                .Max();
+            // Na start przyjmujemy namniejszy możliwy procent. Jeżeli user podał 2% procent możliwej różnicy dla akcji 10%, to przyjmie ona wartość 8% na start.
+            decimal companyPercent = company.Percent - maxCompanyPercentChange;
+            // Wyliczamy wzrost procentu, który będzie zwiększany z każdym przebiegiem pętli aż osiągnie maksymalną wartość określoną w argumencie. 12% dla przykładku powyżej.
+            decimal companyPercentChange = maxCompanyPercentChange / (companyVariantsCount - 1);
 
-            decimal companyPersent = company.Percent - biggestPossiblePercentDiffer;
-            for (int companyNumber = 0; companyNumber < count; companyNumber++)
+            for (int companyNumber = 0; companyNumber < companyVariantsCount; companyNumber++)
             {
-                yield return new Company { Name = company.Name, Percent = companyPersent, Price = company.Price };
-                companyPersent += percent;
+                yield return new Company { Name = company.Name, Percent = companyPercent, Price = company.Price };
+                companyPercent += companyPercentChange;
             }
         }
     }
