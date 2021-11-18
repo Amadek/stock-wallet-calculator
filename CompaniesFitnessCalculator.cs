@@ -14,7 +14,7 @@ namespace StockWalletCalculator
             _wallet = wallet;
         }
 
-        public decimal Calculate(object[] objects)
+        public decimal Calculate(IEnumerable<object> objects)
         {
             Company[] companies = objects.Cast<Company>().ToArray();
 

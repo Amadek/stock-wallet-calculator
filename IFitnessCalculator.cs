@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace StockWalletCalculator
 {
     /// <summary>
@@ -6,6 +8,6 @@ namespace StockWalletCalculator
     /// </summary>
     public interface IFitnessCalculator
     {
-        public decimal Calculate(object[] objects);
+        public decimal Calculate(IEnumerable<object> objects);
     }
 }

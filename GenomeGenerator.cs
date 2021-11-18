@@ -21,7 +21,7 @@ namespace StockWalletCalculator
         /// </summary>
         /// <param name="objectVariants">Matryca wariantów obiektów</param>
         /// <param name="fitnessCalculator">Kalkulator jakości kombinacji obiektów</param>
-        public GenomeGenerator(object[][] objectVariantsMatrix, IFitnessCalculator fitnessCalculator)
+        public GenomeGenerator(IEnumerable<IEnumerable<object>> objectVariantsMatrix, IFitnessCalculator fitnessCalculator)
         {
             _fitnessCalculator = fitnessCalculator;
 
@@ -47,23 +47,20 @@ namespace StockWalletCalculator
             }
         }
 
-        public Genome GenerateGenome()
+        public string GenerateGenome()
         {
-            Genome genome = new Genome { Value = string.Empty };
+            string genome = string.Empty;
 
             foreach (GenomeEntryVariant[] entryVariants in _genomeEntries)
             {
                 // Do genomu dodajemy losowy wariant obiektu A. Dla kolejnego przebiegu robimy tak dla kolejnego obiektu B, itd...
-                genome.Value += entryVariants[_random.Next(0, entryVariants.Length)].BinaryRepresentation;
+                genome += entryVariants[_random.Next(0, entryVariants.Length)].BinaryRepresentation;
             }
 
-            object[] objectsCombination = this.ParseGenome(genome.Value).ToArray();
-
-            genome.Fitness = _fitnessCalculator.Calculate(objectsCombination);
             return genome;
         }
 
-        public IEnumerable<Genome> GenerateGeneration()
+        public IEnumerable<string> GenerateGeneration()
         {
             foreach (int _ in Enumerable.Range(0, _generationPopulation))
             {

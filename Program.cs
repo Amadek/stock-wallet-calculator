@@ -8,51 +8,48 @@ namespace StockWalletCalculator
     {
         static void Main(string[] args)
         {
-            GenomeGenerator genomeGenerator = new GenomeGenerator(new object[][]
+            CompaniesFitnessCalculator companiesFitnessCalculator = new CompaniesFitnessCalculator(wallet: 1000.00M);
+            int variantsNumber = (int)Math.Pow(2, 4);
+            decimal percentDiffer = 0.001M;
+
+            GenomeGenerator genomeGenerator = new GenomeGenerator(new List<IEnumerable<object>>
             {
-                new object[]
-                {
-                    new Company { Name = "AFG", Percent = 0.16M, Price = 24.37M },
-                    new Company { Name = "AFG", Percent = 0.17M, Price = 24.37M },
-                    new Company { Name = "AFG", Percent = 0.18M, Price = 24.37M },
-                    new Company { Name = "AFG", Percent = 0.19M, Price = 24.37M },
-                    new Company { Name = "AFG", Percent = 0.20M, Price = 24.37M },
-                    new Company { Name = "AFG", Percent = 0.21M, Price = 24.37M },
-                    new Company { Name = "AFG", Percent = 0.22M, Price = 24.37M },
-                    new Company { Name = "AFG", Percent = 0.23M, Price = 24.37M },
-                },
-                new object[]
-                {
-                    new Company { Name = "INTEL", Percent = 0.76M, Price = 43.73M },
-                    new Company { Name = "INTEL", Percent = 0.77M, Price = 43.73M },
-                    new Company { Name = "INTEL", Percent = 0.78M, Price = 43.73M },
-                    new Company { Name = "INTEL", Percent = 0.79M, Price = 43.73M },
-                    new Company { Name = "INTEL", Percent = 0.80M, Price = 43.73M },
-                    new Company { Name = "INTEL", Percent = 0.81M, Price = 43.73M },
-                    new Company { Name = "INTEL", Percent = 0.82M, Price = 43.73M },
-                    new Company { Name = "INTEL", Percent = 0.83M, Price = 43.73M },
-                }
-            }, new CompaniesFitnessCalculator(wallet: 1000.00M));
+                Program.GenerateCompanyVariant(new Company { Name = "AFG", Percent = 0.30M, Price = 116.43M }, percentDiffer, variantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "DEV", Percent = 0.07M, Price = 28.40M }, percentDiffer, variantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "EVR", Percent = 0.34M, Price = 124.17M }, percentDiffer, variantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "INTEL", Percent = 0.12M, Price = 46.89M }, percentDiffer, variantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "KGHM", Percent = 0.09M, Price = 33.00M }, percentDiffer, variantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "MFO", Percent = 0.04M, Price = 10.77M }, percentDiffer, variantsNumber),
+                Program.GenerateCompanyVariant(new Company { Name = "OPTEAM", Percent = 0.04M, Price = 3.36M }, percentDiffer, variantsNumber),
+            }, companiesFitnessCalculator);
 
-            Console.WriteLine("FIRST GENERATION");
+            GenerationsRunner generationsRunner = new GenerationsRunner(
+                genomeGenerator, 
+                new GenomeCrossover(),
+                new GenomeMutator(),
+                companiesFitnessCalculator
+            );
 
-            WeightedRandomBag<Genome> genomes = new WeightedRandomBag<Genome>();
-            foreach (Genome genome in genomeGenerator.GenerateGeneration())
+            string bestGenome = generationsRunner.RunGenerations(50, 950.00M);
+            List<object> bestCombination = genomeGenerator.ParseGenome(bestGenome).ToList();
+            decimal bestFitness = companiesFitnessCalculator.Calculate(bestCombination);
+
+            Console.WriteLine(string.Join('\t', bestCombination) + '\t' + bestFitness);
+        }
+
+        static IEnumerable<Company> GenerateCompanyVariant(Company company, decimal percent, int count)
+        {
+            // Chcemy mieć wyniki takie żeby firma o podanym procencie była mniej więcej w środku wyników. Dodatkowa obsługa żebyśmy nie wyjechali na ujemne wartości.
+            decimal biggestPossiblePercentDiffer = Enumerable.Range(1, count)
+                .Select(n => percent * n / 2)
+                .Where(x => x < company.Percent)
+                .Max();
+
+            decimal companyPersent = company.Percent - biggestPossiblePercentDiffer;
+            for (int companyNumber = 0; companyNumber < count; companyNumber++)
             {
-                object[] objects = genomeGenerator.ParseGenome(genome.Value).ToArray();
-                string objectsDetails = string.Join('\t', objects);
-                Console.WriteLine($"{genome.Value}\t{genome.Fitness}\t{objectsDetails}");
-
-                genomes.Add(genome, genome.Fitness);
-            }
-
-            Console.WriteLine("RANDOM PAIR WITH WEIGHT");
-            
-            foreach (Genome genome in genomes.GetWeghtedRandomPair())
-            {
-                object[] objects = genomeGenerator.ParseGenome(genome.Value).ToArray();
-                string objectsDetails = string.Join('\t', objects.Select(o => o.ToString()));
-                Console.WriteLine($"{genome.Value}\t{genome.Fitness}\t{objectsDetails}");
+                yield return new Company { Name = company.Name, Percent = companyPersent, Price = company.Price };
+                companyPersent += percent;
             }
         }
     }
