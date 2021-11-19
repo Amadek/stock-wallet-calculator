@@ -7,6 +7,15 @@ using Newtonsoft.Json;
 
 namespace StockWalletCalculator
 {
+    /// <summary>
+    /// Program do wyliczania portfela inwestycyjnego żeby wykorzystać jak najwięcej środków w portfelu. <para />
+    /// 
+    /// Przy tworzeniu portfela inwestycyjnego często zakłada się że chce się kupić konkretny % danej akcji żeby stworzyć zbilansowany portfel. <br />
+    /// Z reguły jednak nie udaje się kupić tyle akcji żeby ten konkretny % uzyskać - jest to uwarunkowane niepodzielną ceną akcji, która to wymusza. <para />
+    /// 
+    /// Inwestor najczęściej zaczyna kombinować żeby wykorzystać jak najwięcej funduszy, ale im bardziej zaczyna kombinować tym bardziej zaczyna <br />
+    /// odchodzić od docelowego podziału portfela.
+    /// </summary>
     class Program
     {
         static void Main()
