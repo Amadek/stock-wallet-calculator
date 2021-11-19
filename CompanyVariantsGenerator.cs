@@ -11,7 +11,20 @@ namespace StockWalletCalculator
             _config = config;
         }
 
-        public IEnumerable<Company> Generate(Company company)
+        /// <summary>
+        /// Zwraca matrycę możliwych wariantów firm. <br />
+        /// Wiersz oznacza każdą kolejną firmę, kolumna oznacza wariant danej firmy.
+        /// </summary>
+        /// <returns>Matryca możliwych wariantów firm</returns>
+        public IEnumerable<IEnumerable<Company>> Generate()
+        {
+            foreach (Company company in _config.Companies)
+            {
+                yield return this.Generate(company);
+            }
+        }
+
+        private IEnumerable<Company> Generate(Company company)
         {
             decimal maxCompanyPercentChange = _config.CompanyPercentDiffer;
             int companyVariantsCount = _config.CompanyVariantsCount;

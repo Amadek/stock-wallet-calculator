@@ -4,4 +4,13 @@
 	"CompanyPercentDiffer": 0.20,
 	"CompanyVariantsCount": 256,
 	"CompanyGenerationsLimit": 100,
+	"Companies": [
+		{ "Name": "AFG",	"Percent": 0.30,	"Price": 116.43	},
+		{ "Name": "DEV",	"Percent": 0.07,	"Price": 28.40	},
+		{ "Name": "EVR",	"Percent": 0.34,	"Price": 124.17	},
+		{ "Name": "INTEL",	"Percent": 0.12,	"Price": 46.89	},
+		{ "Name": "KGHM",	"Percent": 0.09,	"Price": 33.00	},
+		{ "Name": "MFO",	"Percent": 0.04,	"Price": 10.77	},
+		{ "Name": "OPTEAM",	"Percent": 0.04,	"Price": 3.36	}
+	]
 }

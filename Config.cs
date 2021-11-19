@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace StockWalletCalculator
 {
     class Config
@@ -12,5 +14,7 @@ namespace StockWalletCalculator
         public int CompanyVariantsCount { get; set; }
 
         public int CompanyGenerationsLimit { get; set; }
+
+        public IEnumerable<Company> Companies { get; set; }
     }
 }

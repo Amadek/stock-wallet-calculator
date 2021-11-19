@@ -13,16 +13,7 @@ namespace StockWalletCalculator
         {
             Config config = Program.LoadConfig();
             CompanyVariantsGenerator companyVariantsGenerator = new CompanyVariantsGenerator(config);
-            CompanyGenomeParser companyGenomeParser = new CompanyGenomeParser(new List<IEnumerable<Company>>
-            {
-                companyVariantsGenerator.Generate(new Company { Name = "AFG", Percent = 0.30M, Price = 116.43M }),
-                companyVariantsGenerator.Generate(new Company { Name = "DEV", Percent = 0.07M, Price = 28.40M }),
-                companyVariantsGenerator.Generate(new Company { Name = "EVR", Percent = 0.34M, Price = 124.17M }),
-                companyVariantsGenerator.Generate(new Company { Name = "INTEL", Percent = 0.12M, Price = 46.89M }),
-                companyVariantsGenerator.Generate(new Company { Name = "KGHM", Percent = 0.09M, Price = 33.00M }),
-                companyVariantsGenerator.Generate(new Company { Name = "MFO", Percent = 0.04M, Price = 10.77M }),
-                companyVariantsGenerator.Generate(new Company { Name = "OPTEAM", Percent = 0.04M, Price = 3.36M }),
-            });
+            CompanyGenomeParser companyGenomeParser = new CompanyGenomeParser(companyVariantsGenerator.Generate());
             CompaniesFitnessCalculator companiesFitnessCalculator = new CompaniesFitnessCalculator(companyGenomeParser, config);
             EvolutionRunner generationsRunner = new EvolutionRunner(
                 new GenomeGenerator(companyGenomeParser.GenomeLength), 
