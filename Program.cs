@@ -13,7 +13,6 @@ namespace StockWalletCalculator
             decimal walletFitnessLimit = 990.00M;
             decimal companyPercentDiffer = 0.20M;
             int generationsLimit = 100;
-
             CompanyGenomeParser companyGenomeParser = new CompanyGenomeParser(new List<IEnumerable<Company>>
             {
                 Program.GenerateCompanyVariant(new Company { Name = "AFG", Percent = 0.30M, Price = 116.43M }, companyPercentDiffer, companyVariantsNumber),

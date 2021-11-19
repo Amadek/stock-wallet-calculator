@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace StockWalletCalculator
 {
@@ -28,7 +27,7 @@ namespace StockWalletCalculator
         /// <param name="companyVariantsMatrix">Matryca wariantów firm</param>
         public CompanyGenomeParser(IEnumerable<IEnumerable<Company>> companyVariantsMatrix)
         {
-            //TODO przydałaby się walidacja argumentu
+            this.ValidateCompanyVariantsMatrix(companyVariantsMatrix);
 
             // Zapisanie długości części genomu odpowiadającego tylko za jeden wariant obiektu.
             // Bierzemy szerokość (ilość wariantów obiektu) matrycy i wyliczamy na jej podstawie logarytm z dwójki co określi długość części genomu w postaci binarnej.
@@ -59,6 +58,24 @@ namespace StockWalletCalculator
                 string genomePart = genome.Substring(genomePartIndex, _genomeVariantBinaryLength);
                 // Zwrócenie wariantu firmy, której postać binarna jest pobraną częścią genomu.
                 yield return _genomeEntries[genomeEntryIndex][genomePart];
+            }
+        }
+
+        private void ValidateCompanyVariantsMatrix(IEnumerable<IEnumerable<Company>> companyVariantsMatrix)
+        {
+            if (!companyVariantsMatrix.Any())
+            {
+                throw new ArgumentException("Company variants matrix cannot be empty.");
+            }
+
+            if (!companyVariantsMatrix.All(companyVariants => companyVariantsMatrix.First().Count() == companyVariants.Count()))
+            {
+                throw new ArgumentException("There should be same company variants count on each company.");
+            }
+
+            if (companyVariantsMatrix.All(companyVariants => (int)Math.Log2(companyVariants.Count()) != Math.Log2(companyVariants.Count())))
+            {
+                throw new ArgumentException("Number of company variants has to be math power of 2.");
             }
         }
     }
