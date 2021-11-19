@@ -3,14 +3,14 @@ using System.Linq;
 
 namespace StockWalletCalculator
 {
-    class GenerationsRunner
+    class EvolutionRunner
     {
         private readonly GenomeGenerator _genomeGenerator;
         private readonly GenomeCrossover _genomeCrossover;
         private readonly GenomeMutator _genomeMutator;
         private readonly IFitnessCalculator _fitnessCalculator;
 
-        public GenerationsRunner(
+        public EvolutionRunner(
             GenomeGenerator genomeGenerator,
             GenomeCrossover genomeCrossover,
             GenomeMutator genomeMutator,
@@ -22,7 +22,7 @@ namespace StockWalletCalculator
             _fitnessCalculator = fitnessCalculator;
         }
 
-        public string RunGenerations(int generationLimit, decimal fitnessLimit)
+        public EvolutionResult Evolve(int generationLimit, decimal fitnessLimit)
         {
             List<GenomeWithFitness> oldGeneration = _genomeGenerator.GenerateGeneration()
                 .Select(g => new GenomeWithFitness { Genome = g, Fitness = _fitnessCalculator.Calculate(g) })
@@ -30,8 +30,9 @@ namespace StockWalletCalculator
                 .ToList();
 
             GenomeWithFitness bestGenome = null;
+            int generationIndex;
 
-            for (int generationIndex = 0; generationIndex < generationLimit; generationIndex++)
+            for (generationIndex = 0; generationIndex < generationLimit; generationIndex++)
             {
                 List<GenomeWithFitness> newGeneration = oldGeneration.Take(2).ToList();
                 oldGeneration = oldGeneration.Skip(2).ToList();
@@ -50,13 +51,23 @@ namespace StockWalletCalculator
                 bestGenome = newGeneration.OrderByDescending(g => g.Fitness).First();
                 if (bestGenome.Fitness >= fitnessLimit)
                 {
-                    return bestGenome.Genome;
+                    return new EvolutionResult
+                    {
+                        FinalGenome = bestGenome.Genome,
+                        Fitness = bestGenome.Fitness,
+                        GenerationIndex = generationIndex
+                    };
                 }
 
                 oldGeneration = newGeneration.OrderByDescending(g => g.Fitness).ToList();
             }
 
-            return bestGenome.Genome;
+            return new EvolutionResult
+            {
+                FinalGenome = bestGenome.Genome,
+                Fitness = bestGenome.Fitness,
+                GenerationIndex = generationIndex
+            };
         }
 
         private class GenomeWithFitness

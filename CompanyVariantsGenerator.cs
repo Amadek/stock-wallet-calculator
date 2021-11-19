@@ -1,0 +1,33 @@
+﻿using System.Collections.Generic;
+
+namespace StockWalletCalculator
+{
+    class CompanyVariantsGenerator
+    {
+        private readonly Config _config;
+
+        public CompanyVariantsGenerator(Config config)
+        {
+            _config = config;
+        }
+
+        public IEnumerable<Company> Generate(Company company)
+        {
+            decimal maxCompanyPercentChange = _config.CompanyPercentDiffer;
+            int companyVariantsCount = _config.CompanyVariantsCount;
+
+            // Na start przyjmujemy namniejszy możliwy procent. Jeżeli user podał 2% procent możliwej różnicy dla akcji 10%, to przyjmie ona wartość 9.8% na start.
+            decimal minCompanyPercent = company.Percent * (1 - maxCompanyPercentChange);
+            decimal maxCompanyPercent = company.Percent * (1 + maxCompanyPercentChange);
+            decimal companyPercent = minCompanyPercent;
+            // Wyliczamy wzrost procentu, który będzie zwiększany z każdym przebiegiem pętli aż osiągnie maksymalną wartość określoną w argumencie. 10.2% dla przykładku powyżej.
+            decimal companyPercentChange = (maxCompanyPercent - minCompanyPercent) / companyVariantsCount;
+
+            for (int companyNumber = 0; companyNumber < companyVariantsCount; companyNumber++)
+            {
+                yield return new Company { Name = company.Name, Percent = companyPercent, Price = company.Price };
+                companyPercent += companyPercentChange;
+            }
+        }
+    }
+}

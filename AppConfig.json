@@ -1,0 +1,7 @@
+﻿{
+	"Wallet": 1000.00,
+	"WalletFitnessLimit": 990.00,
+	"CompanyPercentDiffer": 0.20,
+	"CompanyVariantsCount": 256,
+	"CompanyGenerationsLimit": 100,
+}

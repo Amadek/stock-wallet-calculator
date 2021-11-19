@@ -4,12 +4,12 @@ namespace StockWalletCalculator
     class CompaniesFitnessCalculator : IFitnessCalculator
     {
         private readonly CompanyGenomeParser _companyGenomeParser;
-        private readonly decimal _wallet;
+        private readonly Config _config;
 
-        public CompaniesFitnessCalculator(CompanyGenomeParser companyGenomeParser, decimal wallet)
+        public CompaniesFitnessCalculator(CompanyGenomeParser companyGenomeParser, Config config)
         {
             _companyGenomeParser = companyGenomeParser;
-            _wallet = wallet;
+            _config = config;
         }
 
         public decimal Calculate(string genome)
@@ -17,16 +17,22 @@ namespace StockWalletCalculator
             decimal walletFitness = 0.00M;
             foreach (Company company in _companyGenomeParser.ParseGenome(genome))
             {
-                int companySharesToBuy = (int)(_wallet * company.Percent / company.Price);
+                int companySharesToBuy = (int)(_config.Wallet * company.Percent / company.Price);
                 walletFitness += companySharesToBuy * company.Price;
 
-                if (walletFitness > _wallet)
+                if (walletFitness > _config.Wallet)
                 {
                     return 0.00M;
                 }
             }
 
             return walletFitness;
+        }
+
+        public int GetCompanySharesToBuy(Company company)
+        {
+            int companySharesToBuy = (int)(_config.Wallet * company.Percent / company.Price);
+            return companySharesToBuy;
         }
     }
 }
